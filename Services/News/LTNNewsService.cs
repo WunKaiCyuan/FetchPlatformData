@@ -1,6 +1,9 @@
 ﻿using AngleSharp;
+using AutoMapper;
 using FetchPlatformData.Conditions.News;
+using FetchPlatformData.Models;
 using FetchPlatformData.Models.News;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -11,12 +14,19 @@ namespace FetchPlatformData.Services.News
     /// <summary>
     /// 自由時報
     /// </summary>
-    public class LTNNewsService : IFetchData<LTNNewsModel, LTNNewsConditions>
+    public class LTNNewsService : IFetchData<LTNNewsConditions, Saver>
     {
-        public async Task<IEnumerable<LTNNewsModel>> FetchDataAsync(LTNNewsConditions conditions)
+        public async Task FetchDataAsync(LTNNewsConditions conditions, Saver saver)
         {
-            var result = new List<LTNNewsModel>();
+            //var result = new List<LTNNewsModel>();
             var client = new HttpClient();
+
+            //maper config
+            var mapperConfig = new MapperConfiguration(cfg =>
+            {
+                cfg.CreateMap<LTNNewsModel, NewsDataModel>();
+            });
+            var mapper = mapperConfig.CreateMapper();
 
             var config = Configuration.Default;
             var context = BrowsingContext.New(config);
@@ -45,19 +55,25 @@ namespace FetchPlatformData.Services.News
                 var document = await context.OpenAsync(res => res.Content(responseResult));
 
                 var title = document.QuerySelector(".content h1").TextContent;
-                var contentItems = document.QuerySelectorAll(".content .text p").Where(x=>!x.HasAttribute("style") && !x.HasAttribute("class")).Select(x => x.TextContent);
+                var contentItems = document.QuerySelectorAll(".content .text p").Where(x => !x.HasAttribute("style") && !x.HasAttribute("class")).Select(x => x.TextContent);
                 var content = string.Join('\n', contentItems);
+                var postDate = DateTime.Now;
 
                 var model = new LTNNewsModel
                 {
                     Title = title,
-                    Content = content
+                    Content = content,
+                    Date = postDate.ToString("yyyyMMdd"),
+                    Source = href
                 };
 
-                result.Add(model);
+
+                // save result
+                var result = mapper.Map<NewsDataModel>(model);
+                saver.Save(result);
             }
 
-            return result;
+            return;
         }
     }
 }

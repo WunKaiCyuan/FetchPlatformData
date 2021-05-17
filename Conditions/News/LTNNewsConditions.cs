@@ -1,7 +1,6 @@
 ﻿namespace FetchPlatformData.Conditions.News
 {
-    public class LTNNewsConditions
+    public class LTNNewsConditions : NewsConditions
     {
-        public string Keyword { get; set; }
     }
 }
