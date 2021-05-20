@@ -24,7 +24,7 @@ namespace FetchPlatformData
             var keyword = string.Empty;
             TimeSpan timespan = TimeSpan.FromDays(-1);
 
-            //keyword = "疫情";
+            keyword = "疫情";
             foreach (var value in args)
             {
                 if (value.StartsWith("--keyword="))
@@ -41,13 +41,16 @@ namespace FetchPlatformData
             }
 
             // 中國時報
-            await new ChinatimesNewsService().FetchDataAsync(new ChinatimesNewsConditions { Keyword = keyword, timeSpan = timespan }, saver);
+            //await new ChinatimesNewsService().FetchDataAsync(new ChinatimesNewsConditions { Keyword = keyword, timeSpan = timespan }, saver);
 
             // 自由時報 被鎖未測
             //await new LTNNewsService().FetchDataAsync(new LTNNewsConditions { Keyword = keyword, timeSpan = timespan }, saver);
 
             //蘋果日報
-            await new AppledailyNewsService().FetchDataAsync(new AppledailyNewsConditions { Keyword = keyword, timeSpan = timespan }, saver);
+            //await new AppledailyNewsService().FetchDataAsync(new AppledailyNewsConditions { Keyword = keyword, timeSpan = timespan }, saver);
+
+            //今日報
+            await new NowNewsService().FetchDataAsync(new NowNewsConditions { Keyword = keyword, timeSpan = timespan }, saver);
 
         }
     }
