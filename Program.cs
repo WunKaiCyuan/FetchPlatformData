@@ -2,13 +2,16 @@
 using CsvHelper;
 using CsvHelper.Configuration;
 using FetchPlatformData.Conditions.News;
+using FetchPlatformData.Models;
 using FetchPlatformData.Models.News;
 using FetchPlatformData.Services;
 using FetchPlatformData.Services.News;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace FetchPlatformData
@@ -19,45 +22,33 @@ namespace FetchPlatformData
         {
             var result = new List<NewsDataModel>();
             var keyword = string.Empty;
+            TimeSpan timespan = TimeSpan.FromDays(-1);
 
+            //keyword = "疫情";
             foreach (var value in args)
             {
                 if (value.StartsWith("--keyword="))
                     keyword = value.Substring("--keyword=".Length);
+                if (value.StartsWith("--days="))
+                    timespan = TimeSpan.FromDays(-int.Parse(value.Substring("--days=".Length)));
             }
+            //儲存器
+            Saver saver = Saver.getSaver(keyword);
 
             if (string.IsNullOrEmpty(keyword))
             {
                 throw new ArgumentException("keyword is required");
             }
 
-            // AutoMapper工具
-            var mapperConfig = new MapperConfiguration(cfg=> {
-                cfg.CreateMap<ChinatimesNewsModel, NewsDataModel>();
-                cfg.CreateMap<LTNNewsModel, NewsDataModel>();
-            });
-            var mapper = mapperConfig.CreateMapper();
-
             // 中國時報
-            var chinatimesNewsModel = await new ChinatimesNewsService().FetchDataAsync(new ChinatimesNewsConditions { Keyword = keyword });
-            result.AddRange(mapper.Map<IEnumerable<NewsDataModel>>(chinatimesNewsModel));
+            await new ChinatimesNewsService().FetchDataAsync(new ChinatimesNewsConditions { Keyword = keyword, timeSpan = timespan }, saver);
 
-            // 自由時報
-            var ltnNewsModels = await new LTNNewsService().FetchDataAsync(new LTNNewsConditions { Keyword = keyword });
-            result.AddRange(mapper.Map<IEnumerable<NewsDataModel>>(ltnNewsModels));
+            // 自由時報 被鎖未測
+            //await new LTNNewsService().FetchDataAsync(new LTNNewsConditions { Keyword = keyword, timeSpan = timespan }, saver);
 
-            // 產生CSV
-            using (var writer = new StreamWriter($"{keyword}_result.csv"))
-            {
-                var csvConfig = new CsvConfiguration(CultureInfo.InvariantCulture) {
-                    NewLine = Environment.NewLine,
-                };
+            //蘋果日報
+            await new AppledailyNewsService().FetchDataAsync(new AppledailyNewsConditions { Keyword = keyword, timeSpan = timespan }, saver);
 
-                using (var csv = new CsvWriter(writer, csvConfig))
-                {
-                    csv.WriteRecords(result);
-                }
-            }
         }
     }
 }

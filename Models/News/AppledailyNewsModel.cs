@@ -1,6 +1,9 @@
-﻿namespace FetchPlatformData.Models.News
+﻿using System;
+
+namespace FetchPlatformData.Models.News
 {
-    public class LTNNewsModel {
+    public class AppledailyNewsModel
+    {
         /// <summary>
         /// 新聞標題
         /// </summary>

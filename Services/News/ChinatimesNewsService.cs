@@ -1,5 +1,7 @@
 ﻿using AngleSharp;
+using AutoMapper;
 using FetchPlatformData.Conditions.News;
+using FetchPlatformData.Models;
 using FetchPlatformData.Models.News;
 using System;
 using System.Collections.Generic;
@@ -13,16 +15,24 @@ namespace FetchPlatformData.Services.News
     /// <summary>
     /// 中國時報
     /// </summary>
-    public class ChinatimesNewsService : IFetchData<ChinatimesNewsModel, ChinatimesNewsConditions>
+    public class ChinatimesNewsService : IFetchData<ChinatimesNewsConditions, Saver>
     {
-        public async Task<IEnumerable<ChinatimesNewsModel>> FetchDataAsync(ChinatimesNewsConditions conditions)
+        public async Task FetchDataAsync(ChinatimesNewsConditions conditions, Saver saver)
         {
-            var result = new List<ChinatimesNewsModel>();
+            //var result = new List<ChinatimesNewsModel>();
+
             var client = new HttpClient();
 
             var config = Configuration.Default;
             var context = BrowsingContext.New(config);
+            //maper config
+            var mapperConfig = new MapperConfiguration(cfg =>
+            {
+                cfg.CreateMap<ChinatimesNewsModel, NewsDataModel>();
+            });
+            var mapper = mapperConfig.CreateMapper();
 
+            //get html content
             var page = 1;
             var hrefs = new List<string>();
             var paginationDataTotal = 0;
@@ -32,7 +42,9 @@ namespace FetchPlatformData.Services.News
                 var responseMessage = await client.GetAsync(url);
                 var responseResult = await responseMessage.Content.ReadAsStringAsync();
                 var document = await context.OpenAsync(res => res.Content(responseResult));
-                var paginationHrefs = document.QuerySelectorAll(".search-result .title a").Select(x => x.GetAttribute("href"));
+                var paginationHrefs = document.QuerySelectorAll(".articlebox-compact .row .col")
+                    .Where(x => DateTime.Parse(x.QuerySelector(".meta-info time").GetAttribute("datetime")) > DateTime.Now.Add(conditions.timeSpan))
+                    .Select(x => x.QuerySelector(".title a").GetAttribute("href"));
                 paginationDataTotal = paginationHrefs.Count();
                 hrefs.AddRange(paginationHrefs);
 
@@ -42,23 +54,34 @@ namespace FetchPlatformData.Services.News
 
             foreach (var href in hrefs)
             {
-                var responseMessage = await client.GetAsync(href);
-                var responseResult = await responseMessage.Content.ReadAsStringAsync();
-                var document = await context.OpenAsync(res => res.Content(responseResult));
+                try
+                {
+                    var responseMessage = await client.GetAsync(href);
+                    var responseResult = await responseMessage.Content.ReadAsStringAsync();
+                    var document = await context.OpenAsync(res => res.Content(responseResult));
 
-                var title = document.QuerySelector(".article-title").TextContent;
-                var contentItems = document.QuerySelectorAll(".article-body p").Select(x => x.TextContent);
-                var content = string.Join('\n', contentItems);
+                    var title = document.QuerySelector(".article-title").TextContent;
+                    var contentItems = document.QuerySelectorAll(".article-body p").Select(x => x.TextContent);
+                    var content = string.Join('\n', contentItems);
+                    var postDate = DateTime.Parse(document.QuerySelector(".date").TextContent);
+                    var model = new ChinatimesNewsModel
+                    {
+                        Title = title,
+                        Content = content,
+                        Date = postDate.ToString("yyyyMMdd"),
+                        Source = href
+                    };
 
-                var model = new ChinatimesNewsModel {
-                    Title = title,
-                    Content = content
-                };
-
-                result.Add(model);
+                    //save result
+                    var result = mapper.Map<NewsDataModel>(model);
+                    saver.Save(result);
+                }
+                catch
+                {
+                }
             }
 
-            return result;
+            return;
         }
     }
 }
