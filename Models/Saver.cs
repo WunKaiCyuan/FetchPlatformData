@@ -15,6 +15,7 @@ namespace FetchPlatformData.Models
         public int Count { get; set; } = 0;
         public string keyword = "";
         private DirectoryInfo DataDirectoryInfo { get; set; }
+        public string FileLocation { get { return DataDirectoryInfo.FullName; } }
 
         private Saver(string keyword)
         {

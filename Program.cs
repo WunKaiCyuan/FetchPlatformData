@@ -50,7 +50,16 @@ namespace FetchPlatformData
             //await new AppledailyNewsService().FetchDataAsync(new AppledailyNewsConditions { Keyword = keyword, timeSpan = timespan }, saver);
 
             //今日報
-            await new NowNewsService().FetchDataAsync(new NowNewsConditions { Keyword = keyword, timeSpan = timespan }, saver);
+            //await new NowNewsService().FetchDataAsync(new NowNewsConditions { Keyword = keyword, timeSpan = timespan }, saver);
+
+
+            //工商時報
+            //await new CteeNewsService().FetchDataAsync(new CteeNewsConditions { Keyword = keyword, timeSpan = timespan }, saver);
+
+
+
+            Console.WriteLine("---------Done!");
+            System.Diagnostics.Process.Start(@"C:\Windows\explorer.exe", saver.FileLocation);
 
         }
     }
