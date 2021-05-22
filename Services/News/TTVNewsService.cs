@@ -60,7 +60,7 @@ namespace FetchPlatformData.Services.News
                     var content = document.QuerySelector("#newscontent").TextContent
                         .Replace("\n", string.Empty).
                         Replace(" ", string.Empty);
-                    var postDate = DateTime.Parse(document.QuerySelector(".date.time").TextContent.Replace("\n", string.Empty).Replace(" ", string.Empty));
+                    var postDate = DateTime.Parse(document.QuerySelector(".date.time").TextContent.Replace("\n", string.Empty));
 
                     var model = new NewsDataModel
                     {
