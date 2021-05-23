@@ -56,7 +56,10 @@ namespace FetchPlatformData
             //await new CteeNewsService().FetchDataAsync(new CteeNewsConditions { Keyword = keyword, timeSpan = timespan }, saver);
 
             //台視
-            await new TTVNewsService().FetchDataAsync(new TTVNewsConditions { Keyword = keyword, timeSpan = timespan }, saver);
+            //await new TTVNewsService().FetchDataAsync(new TTVNewsConditions { Keyword = keyword, timeSpan = timespan }, saver);
+
+            //ETtoday 新聞雲
+            await new EttodayNewsService().FetchDataAsync(new NewsConditions { Keyword = keyword, timeSpan = timespan }, saver);
 
 
             Console.WriteLine("---------Done!");
