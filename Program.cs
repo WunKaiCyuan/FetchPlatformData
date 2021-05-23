@@ -52,10 +52,11 @@ namespace FetchPlatformData
             //今日報
             //await new NowNewsService().FetchDataAsync(new NowNewsConditions { Keyword = keyword, timeSpan = timespan }, saver);
 
-
             //工商時報
             //await new CteeNewsService().FetchDataAsync(new CteeNewsConditions { Keyword = keyword, timeSpan = timespan }, saver);
 
+            //台視
+            await new TTVNewsService().FetchDataAsync(new TTVNewsConditions { Keyword = keyword, timeSpan = timespan }, saver);
 
 
             Console.WriteLine("---------Done!");
