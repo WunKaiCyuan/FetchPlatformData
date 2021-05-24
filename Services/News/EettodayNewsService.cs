@@ -33,7 +33,7 @@ namespace FetchPlatformData.Services.News
             var paginationDataTotal = 0;
             do
             {
-                var url = $"https://www.ettoday.net/news_search/doSearch.php?keywords={conditions.Keyword}&daydiff=3&idx={page}";
+                var url = $"https://www.ettoday.net/news_search/doSearch.php?keywords={conditions.Keyword}&daydiff=3&page={page}";
                 var responseMessage = await client.GetAsync(url);
                 var responseResult = await responseMessage.Content.ReadAsStringAsync();
                 var document = await context.OpenAsync(res => res.Content(responseResult));
