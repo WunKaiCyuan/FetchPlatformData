@@ -59,8 +59,10 @@ namespace FetchPlatformData
             //await new TTVNewsService().FetchDataAsync(new TTVNewsConditions { Keyword = keyword, timeSpan = timespan }, saver);
 
             //ETtoday 新聞雲
-            await new EttodayNewsService().FetchDataAsync(new NewsConditions { Keyword = keyword, timeSpan = timespan }, saver);
+            //await new EttodayNewsService().FetchDataAsync(new NewsConditions { Keyword = keyword, timeSpan = timespan }, saver);
 
+            //PTT post
+            await new PTTPostService().FetchDataAsync(new NewsConditions { Keyword = keyword, timeSpan = timespan }, saver);
 
             Console.WriteLine("---------Done!");
             System.Diagnostics.Process.Start(@"C:\Windows\explorer.exe", saver.FileLocation);
