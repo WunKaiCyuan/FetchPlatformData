@@ -15,10 +15,11 @@ namespace FetchPlatformData.Models
         private static Saver saver;
         public int NewsCount { get; set; } = 0;
         public int CommunityCount { get; set; } = 0;
+        public int ErrorLogCount { get; set; } = 0;
         public string keyword = "";
         private DirectoryInfo NewsDirectoryInfo { get; set; }
-
         private DirectoryInfo CommunityDirectoryInfo { get; set; }
+        private DirectoryInfo ErrorLogDirectoryInfo { get; set; }
         public string FileLocation { get { return NewsDirectoryInfo.Parent.FullName; } }
 
         private Saver(string keyword)
@@ -28,6 +29,8 @@ namespace FetchPlatformData.Models
             this.CommunityCount = 0;
             NewsDirectoryInfo = Directory.CreateDirectory($"{keyword}_News_{DateTime.Now.ToString("yyyyMMddhhmm")}");
             CommunityDirectoryInfo = Directory.CreateDirectory($"{keyword}_Community_{DateTime.Now.ToString("yyyyMMddhhmm")}");
+            ErrorLogDirectoryInfo = Directory.CreateDirectory($"{keyword}_ErrorLog_{DateTime.Now.ToString("yyyyMMddhhmm")}");
+            
         }
 
         public static Saver getSaver(string keyword)
@@ -63,6 +66,20 @@ namespace FetchPlatformData.Models
                 writer.Close();
             }
             CommunityCount++;
+        }
+
+        public void ErrorLog(Exception ex, List<string> Args)
+        {
+            string fileName = $"/{ ErrorLogCount.ToString("D8")}.json";
+            Console.WriteLine($"[{DateTime.Now.ToShortTimeString()}]save to: {ErrorLogDirectoryInfo.FullName}{fileName}");
+
+            using (var writer = new StreamWriter(ErrorLogDirectoryInfo.FullName + fileName, false, System.Text.Encoding.UTF8))
+            {
+                string jsonString = JsonConvert.SerializeObject(new { Message = ex.Message,Args= Args , CommunityCount = CommunityCount, NewsCount= NewsCount });
+                writer.WriteLine(jsonString);
+                writer.Close();
+            }
+            ErrorLogCount++;
         }
     }
 }
