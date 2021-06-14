@@ -22,7 +22,7 @@ namespace FetchPlatformData
         {
             var result = new List<NewsDataModel>();
             var keyword = string.Empty;
-            TimeSpan timespan = TimeSpan.FromDays(-1);
+            TimeSpan timespan = TimeSpan.FromDays(-90);
 
             keyword = "疫情";
             foreach (var value in args)
