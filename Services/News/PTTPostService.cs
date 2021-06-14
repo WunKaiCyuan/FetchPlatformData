@@ -28,9 +28,10 @@ namespace FetchPlatformData.Services.News
 
             //
             //接續
-            saver.CommunityCount = 474181;
+            saver.CommunityCount = 0;
             var contiunefrombord = "";
-            bool skipbordto = true;
+            var skiptoBordName = "";
+            bool skipbordto = skiptoBordName!="";
 
             //ptt
             //抓各版
@@ -43,7 +44,7 @@ namespace FetchPlatformData.Services.News
             foreach (var bordHref in bordsHrefs)
             {
                 //接續用
-                if (!bordHref.Contains("HatePolitics") && skipbordto)
+                if (!bordHref.Contains(skiptoBordName) && skipbordto)
                     continue;
                 else
                     skipbordto = false;
